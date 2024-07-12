@@ -1033,8 +1033,7 @@
 
     FlutterMethodChannel *backgroundChannel = [FlutterMethodChannel methodChannelWithName:@"flutter_radar_background" binaryMessenger:[sBackgroundFlutterEngine binaryMessenger]];
     self.backgroundChannel = backgroundChannel;
-
-    [self.sBackgroundFlutterEngine runWithEntrypoint:callbackInfo.callbackName libraryURI: callbackInfo.callbackLibraryPath] ;    
+    [self.sBackgroundFlutterEngine runWithEntrypoint:callbackInfo.callbackName libraryURI: callbackInfo.callbackLibraryPath];
     result(nil);
 }
 
@@ -1087,10 +1086,13 @@
     
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSInteger callbackHandle = [userDefaults integerForKey:@"location"];
+    NSArray* args = @[[NSNumber numberWithInteger:callbackHandle], dict];
+    if (self.channel != nil) {
+        [self.channel invokeMethod:@"location" arguments:args];
+    }
     if (callbackHandle == 0) {
         return;
     }
-    NSArray* args = @[[NSNumber numberWithInteger:callbackHandle], dict];
     [self.backgroundChannel invokeMethod:@"" arguments:args];
 }
 
@@ -1098,10 +1100,13 @@
     NSDictionary *dict = @{@"location": [Radar dictionaryForLocation:location], @"stopped": @(stopped), @"source": [Radar stringForLocationSource:source]};
     NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
     NSInteger callbackHandle = [userDefaults integerForKey:@"clientLocation"];
+    NSArray* args = @[[NSNumber numberWithInteger:callbackHandle], dict];
+    if (self.channel != nil) {
+        [self.channel invokeMethod:@"clientLocation" arguments:args];
+    }
     if (callbackHandle == 0) {
         return;
     }
-    NSArray* args = @[[NSNumber numberWithInteger:callbackHandle], dict];
     [self.backgroundChannel invokeMethod:@"" arguments:args];
 }
 
