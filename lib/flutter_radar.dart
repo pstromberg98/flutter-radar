@@ -378,7 +378,7 @@ class Radar {
   }
 
   static Future<Map?> reverseGeocode(
-      {Map<String, dynamic>? location, List? layers}) async {
+      {Map<String, dynamic>? location, List<String>? layers}) async {
     try {
       final Map<String, dynamic> arguments = {
         'location': location != null ? location : null,
@@ -562,7 +562,7 @@ class Radar {
   static offLog() {
     foregroundLogCallback = null;
   }
-  
+
   static onEvents(EventsCallback callback) {
     if (foregroundEventsCallback != null) {
       throw RadarExistingCallbackException();
