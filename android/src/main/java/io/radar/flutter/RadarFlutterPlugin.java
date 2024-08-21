@@ -955,8 +955,9 @@ public class RadarFlutterPlugin implements FlutterPlugin, ActivityAware, Request
             }
         };
 
-        String[] layers = call.hasArgument("layers") && call.argument("layers") != null ? call.argument("layers")
+        ArrayList layersArgument = call.hasArgument("layers") && call.argument("layers") != null ? call.argument("layers")
                 : null;
+        String[] layers = layersArgument != null ? (String[])layersArgument.toArray(new String[0]) : null;
         if (call.hasArgument("location") && call.argument("location") != null) {
             HashMap locationMap = (HashMap) call.argument("location");
             Location location = locationForMap(locationMap);
