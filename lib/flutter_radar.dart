@@ -16,7 +16,7 @@ void callbackDispatcher() {
     final Function? callback = PluginUtilities.getCallbackFromHandle(handle);
     final Map res = args[1];
 
-    if (call.name == 'clientLocation') {
+    if (call.method == 'clientLocation') {
       callback?.call(RadarHeadlessEvent(
         type: RadarHeadlessEventType.clientLocationUpdate, 
         data: res,
