@@ -1317,6 +1317,11 @@ public class RadarFlutterPlugin implements FlutterPlugin, ActivityAware, Request
                 obj.put("stopped", stopped);
                 obj.put("source", source.toString());
 
+                JSONObject motionActivityJson = RadarState.getLastMotionActivity(context);
+                if (motionActivityJson != null) {
+                    obj.put("motionActivity", motionActivityJson.get("type"));
+                }
+
                 HashMap<String, Object> res = new Gson().fromJson(obj.toString(), HashMap.class);
 
                 final ArrayList clientLocationArgs = new ArrayList();
