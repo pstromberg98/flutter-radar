@@ -1,6 +1,7 @@
 #import "RadarFlutterPlugin.h"
 
 #import <RadarSDK/RadarSDK.h>
+#import <RadarSDK/RadarState.h>
 
 @interface RadarFlutterPlugin() <RadarDelegate, RadarVerifiedDelegate>
 
@@ -300,6 +301,7 @@
             if (user) {
                 [dict setObject:[user dictionaryValue] forKey:@"user"];
             }
+            [dict setObject: [RadarState lastMotionActivityData][@"type"] forKey:@"motionActivity"];
             result(dict);
         }
     };
@@ -696,19 +698,33 @@
     }
 }
 
-- (void)autocomplete:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+- (void)autocomplete:(FlutterMethodCall *)call withResult:(FlutterResult)result { 
     NSDictionary *argsDict = call.arguments;
     
+    // Extract and validate the query parameter
     NSString *query = argsDict[@"query"];
-    CLLocation *near;
+    if (![query isKindOfClass:[NSString class]]) {
+        result([FlutterError errorWithCode:@"INVALID_ARGUMENT" message:@"Query must be a string" details:nil]);
+        return;
+    }
+
+    // Extract and validate the near parameter, allowing it to be nil
+    CLLocation *near = nil;
     NSDictionary *nearDict = argsDict[@"near"];
-    if (nearDict) {
+    if (nearDict && [nearDict isKindOfClass:[NSDictionary class]]) {
         NSNumber *latitudeNumber = nearDict[@"latitude"];
         NSNumber *longitudeNumber = nearDict[@"longitude"];
-        double latitude = [latitudeNumber doubleValue];
-        double longitude = [longitudeNumber doubleValue];
-        near = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(latitude, longitude) altitude:-1 horizontalAccuracy:5 verticalAccuracy:-1 timestamp:[NSDate date]];
+        if ([latitudeNumber isKindOfClass:[NSNumber class]] && [longitudeNumber isKindOfClass:[NSNumber class]]) {
+            double latitude = [latitudeNumber doubleValue];
+            double longitude = [longitudeNumber doubleValue];
+            near = [[CLLocation alloc] initWithCoordinate:CLLocationCoordinate2DMake(latitude, longitude) altitude:-1 horizontalAccuracy:5 verticalAccuracy:-1 timestamp:[NSDate date]];
+        } else {
+            result([FlutterError errorWithCode:@"INVALID_ARGUMENT" message:@"Latitude and longitude must be numbers" details:nil]);
+            return;
+        }
     }
+
+    // Extract and validate the limit parameter, defaulting to 10 if not provided
     NSNumber *limitNumber = argsDict[@"limit"];
     int limit;
     if (limitNumber != nil && [limitNumber isKindOfClass:[NSNumber class]]) {
@@ -716,9 +732,22 @@
     } else {
         limit = 10;
     }
+
+    // Extract and validate the layers parameter, allowing it to be nil
     NSArray *layers = [argsDict[@"layers"] isKindOfClass:[NSNull class]] ? nil : argsDict[@"layers"];
+    if (layers && ![layers isKindOfClass:[NSArray class]]) {
+        result([FlutterError errorWithCode:@"INVALID_ARGUMENT" message:@"Layers must be an array" details:nil]);
+        return;
+    }
+
+    // Extract and validate the country parameter, allowing it to be nil
     NSString *country = [argsDict[@"country"] isKindOfClass:[NSNull class]] ? nil : argsDict[@"country"];
+    if (country && ![country isKindOfClass:[NSString class]]) {
+        result([FlutterError errorWithCode:@"INVALID_ARGUMENT" message:@"Country must be a string" details:nil]);
+        return;
+    }
     
+    // Define the completion handler for the Radar autocomplete query
     RadarGeocodeCompletionHandler completionHandler = ^(RadarStatus status, NSArray<RadarAddress *> * _Nullable addresses) {
         NSMutableDictionary *dict = [NSMutableDictionary new];
         [dict setObject:[Radar stringForStatus:status] forKey:@"status"];
@@ -728,7 +757,7 @@
         result(dict);
     };
 
-    
+    // Extract and validate the mailable parameter, allowing it to be nil
     NSNumber *mailableNumber = argsDict[@"mailable"];
     if (mailableNumber != nil && [mailableNumber isKindOfClass:[NSNumber class]]) {
         BOOL mailable = [mailableNumber boolValue];
@@ -1013,7 +1042,7 @@
 }
 
 - (void)didUpdateLocation:(CLLocation *)location user:(RadarUser *)user {
-    NSDictionary *dict = @{@"location": [Radar dictionaryForLocation:location], @"user": [user dictionaryValue]};
+    NSDictionary *dict = @{@"location": [Radar dictionaryForLocation:location], @"user": [user dictionaryValue], @"motionActivity": [RadarState lastMotionActivityData][@"type"]};
     NSArray* args = @[@0, dict];
     if (self.channel != nil) {
         [self.channel invokeMethod:@"location" arguments:args];
@@ -1021,7 +1050,7 @@
 }
 
 - (void)didUpdateClientLocation:(CLLocation *)location stopped:(BOOL)stopped source:(RadarLocationSource)source {
-    NSDictionary *dict = @{@"location": [Radar dictionaryForLocation:location], @"stopped": @(stopped), @"source": [Radar stringForLocationSource:source]};
+    NSDictionary *dict = @{@"location": [Radar dictionaryForLocation:location], @"stopped": @(stopped), @"source": [Radar stringForLocationSource:source], @"motionActivity": [RadarState lastMotionActivityData][@"type"]};
     NSArray* args = @[@0, dict];
     if (self.channel != nil) {
         [self.channel invokeMethod:@"clientLocation" arguments:args];
