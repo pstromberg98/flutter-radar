@@ -106,7 +106,7 @@ public class RadarFlutterHeadlessReceiver extends RadarReceiver {
 
             JSONObject motionActivityJson = RadarState.getLastMotionActivity(context);
             if (motionActivityJson != null) {
-                obj.put("activity", motionActivityJson.get("type"));
+                obj.put("motionActivity", motionActivityJson.get("type"));
             }
 
             HashMap<String, Object> res = new Gson().fromJson(obj.toString(), HashMap.class);
@@ -126,7 +126,7 @@ public class RadarFlutterHeadlessReceiver extends RadarReceiver {
                 runOnMainThread(new Runnable() {
                     @Override
                     public void run() {
-                        sBackgroundChannel.invokeMethod("", clientLocationArgs);
+                        sBackgroundChannel.invokeMethod("clientLocation", clientLocationArgs);
                     }
                 });
             }

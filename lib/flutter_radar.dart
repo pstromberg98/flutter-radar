@@ -16,7 +16,12 @@ void callbackDispatcher() {
     final Function? callback = PluginUtilities.getCallbackFromHandle(handle);
     final Map res = args[1];
 
-    callback?.call(res);
+    if (call.name == 'clientLocation') {
+      callback?.call(RadarHeadlessEvent(
+        type: RadarHeadlessEventType.clientLocationUpdate, 
+        data: res,
+      ));
+    }
   });
 }
 
@@ -28,7 +33,7 @@ typedef ErrorCallback = void Function(Map<dynamic, dynamic> errorEvent);
 typedef LogCallback = void Function(Map<dynamic, dynamic> logEvent);
 typedef EventsCallback = void Function(Map<dynamic, dynamic> eventsEvent);
 typedef TokenCallback = void Function(Map<dynamic, dynamic> tokenEvent);
-typedef HeadlessEventCallback = void Function(Map<dynamic, dynamic> headlessEvent);
+typedef HeadlessEventCallback = void Function(RadarHeadlessEvent headlessEvent);
 
 class Radar {
   static const MethodChannel _channel = const MethodChannel('flutter_radar');
@@ -741,4 +746,22 @@ class RadarExistingCallbackException implements Exception {
   String toString() {
     return 'Existing callback already exists for this event. Please call the corresponding `off` method first.';
   }
+}
+
+enum RadarHeadlessEventType {
+  clientLocationUpdate,
+  locationUpdate,
+  log,
+  error,
+}
+
+class RadarHeadlessEvent {
+
+  RadarHeadlessEvent({
+    required this.type,
+    required this.data,
+  });
+
+  RadarHeadlessEventType type;
+  Map<dynamic, dynamic> data;
 }
