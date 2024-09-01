@@ -107,6 +107,8 @@ public class RadarFlutterHeadlessReceiver extends RadarReceiver {
             JSONObject motionActivityJson = RadarState.getLastMotionActivity(context);
             if (motionActivityJson != null) {
                 obj.put("motionActivity", motionActivityJson.get("type"));
+            } else {
+                obj.put("motionActivity", "unknown");
             }
 
             HashMap<String, Object> res = new Gson().fromJson(obj.toString(), HashMap.class);
