@@ -28,6 +28,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -298,9 +299,11 @@ public class RadarFlutterPlugin implements FlutterPlugin, ActivityAware, Request
         editor.putString("x_platform_sdk_type", "Flutter");
         editor.putString("x_platform_sdk_version", "3.11.0");
         editor.apply();
-        Radar.initialize(mContext, publishableKey);
-        Radar.setReceiver(new RadarFlutterReceiver(channel));
-        Radar.setVerifiedReceiver(new RadarFlutterVerifiedReceiver(channel));
+        if (!Radar.isInitialized()) {
+            Radar.initialize(mContext, publishableKey);
+            Radar.setReceiver(new RadarFlutterReceiver(channel));
+            Radar.setVerifiedReceiver(new RadarFlutterVerifiedReceiver(channel));
+        }
         result.success(true);
     }
 
