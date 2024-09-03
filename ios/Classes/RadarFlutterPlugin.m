@@ -301,7 +301,7 @@
             if (user) {
                 [dict setObject:[user dictionaryValue] forKey:@"user"];
             }
-            [dict setObject: [RadarState lastMotionActivityData][@"type"] forKey:@"motionActivity"];
+            [dict setObject: [RadarState lastMotionActivityData][@"type"] ?: @"unknown" forKey:@"motionActivity"];
             result(dict);
         }
     };
@@ -1042,7 +1042,7 @@
 }
 
 - (void)didUpdateLocation:(CLLocation *)location user:(RadarUser *)user {
-    NSDictionary *dict = @{@"location": [Radar dictionaryForLocation:location], @"user": [user dictionaryValue], @"motionActivity": [RadarState lastMotionActivityData][@"type"]};
+    NSDictionary *dict = @{@"location": [Radar dictionaryForLocation:location], @"user": [user dictionaryValue], @"motionActivity": [RadarState lastMotionActivityData][@"type"] ?: @"unknown"};
     NSArray* args = @[@0, dict];
     if (self.channel != nil) {
         [self.channel invokeMethod:@"location" arguments:args];
@@ -1050,7 +1050,7 @@
 }
 
 - (void)didUpdateClientLocation:(CLLocation *)location stopped:(BOOL)stopped source:(RadarLocationSource)source {
-    NSDictionary *dict = @{@"location": [Radar dictionaryForLocation:location], @"stopped": @(stopped), @"source": [Radar stringForLocationSource:source], @"motionActivity": [RadarState lastMotionActivityData][@"type"]};
+    NSDictionary *dict = @{@"location": [Radar dictionaryForLocation:location], @"stopped": @(stopped), @"source": [Radar stringForLocationSource:source], @"motionActivity": [RadarState lastMotionActivityData][@"type"] ?: @"unknown"};
     NSArray* args = @[@0, dict];
     if (self.channel != nil) {
         [self.channel invokeMethod:@"clientLocation" arguments:args];
