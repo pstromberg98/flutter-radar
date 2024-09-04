@@ -526,7 +526,13 @@ class Radar {
   }
 
   static Future<void> registerHeadlessCallback(
-      HeadlessEventCallback? callback) async {
+    HeadlessEventCallback? callback,
+  ) async {
+    // Headless callbacks are only applicable to android.
+    if (!Platform.isAndroid) {
+      return Future.value();
+    }
+
     return await _channel.invokeMethod('registerHeadlessCallback', {
       'headlessEventCallbackHandle': callback != null
           ? PluginUtilities.getCallbackHandle(callback)?.toRawHandle()
