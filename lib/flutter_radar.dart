@@ -18,7 +18,7 @@ void callbackDispatcher() {
 
     if (call.method == 'clientLocation') {
       callback?.call(RadarHeadlessEvent(
-        type: RadarHeadlessEventType.clientLocationUpdate, 
+        type: RadarHeadlessEventType.clientLocationUpdate,
         data: res,
       ));
     }
@@ -525,10 +525,20 @@ class Radar {
     }
   }
 
-  static Future<void> registerHeadlessCallback(HeadlessEventCallback? callback) async {
+  static Future<void> registerHeadlessCallback(
+    HeadlessEventCallback? callback,
+  ) async {
+    // Headless callbacks are only applicable to android.
+    if (!Platform.isAndroid) {
+      return Future.value();
+    }
+
     return await _channel.invokeMethod('registerHeadlessCallback', {
-      'headlessEventCallbackHandle': callback != null ? PluginUtilities.getCallbackHandle(callback)?.toRawHandle() : null,
-      'callbackDispatcherHandle': PluginUtilities.getCallbackHandle(callbackDispatcher)?.toRawHandle(),
+      'headlessEventCallbackHandle': callback != null
+          ? PluginUtilities.getCallbackHandle(callback)?.toRawHandle()
+          : null,
+      'callbackDispatcherHandle':
+          PluginUtilities.getCallbackHandle(callbackDispatcher)?.toRawHandle(),
     });
   }
 
@@ -756,7 +766,6 @@ enum RadarHeadlessEventType {
 }
 
 class RadarHeadlessEvent {
-
   RadarHeadlessEvent({
     required this.type,
     required this.data,
