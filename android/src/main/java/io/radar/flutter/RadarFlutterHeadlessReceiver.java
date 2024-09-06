@@ -81,15 +81,13 @@ public class RadarFlutterHeadlessReceiver extends RadarReceiver {
     private static final String HEADLESS_EVENT_CALLBACK_HANDLE_KEY = "headlessEventCallbackHandle";
 
     public RadarFlutterHeadlessReceiver(Context context) {
-        notification(context, "Initializing");
         initializeBackgroundEngine(context);
     }
 
     public static void storeHandles(
-        Context context, 
-        Long headlessEventCallbackHandle, 
-        Long callbackDispatcherHandle
-    ) {
+            Context context,
+            Long headlessEventCallbackHandle,
+            Long callbackDispatcherHandle) {
         SharedPreferences.Editor editor = context.getSharedPreferences(TAG, Context.MODE_PRIVATE).edit();
         editor.putLong(HEADLESS_EVENT_CALLBACK_HANDLE_KEY, headlessEventCallbackHandle);
         editor.putLong(CALLBACK_DISPATCHER_HANDLE_KEY, callbackDispatcherHandle);
@@ -161,7 +159,7 @@ public class RadarFlutterHeadlessReceiver extends RadarReceiver {
             SharedPreferences sharedPrefs = context.getSharedPreferences(TAG, Context.MODE_PRIVATE);
             long callbackDispatcherHandle = sharedPrefs.getLong(CALLBACK_DISPATCHER_HANDLE_KEY, 0);
             if (callbackDispatcherHandle == 0) {
-                notification(context, "Failed to initialize");
+                // notification(context, "Failed to initialize");
                 Log.e(TAG, "Error looking up callback dispatcher handle");
                 return;
             }
