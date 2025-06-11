@@ -1,6 +1,7 @@
 #import "RadarFlutterPlugin.h"
 
 #import <RadarSDK/RadarSDK.h>
+#import <RadarSDK/RadarState.h>
 
 @interface RadarFlutterPlugin() <RadarDelegate, RadarVerifiedDelegate>
 
