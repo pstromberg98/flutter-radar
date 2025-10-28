@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -28,6 +29,9 @@ typedef ErrorCallback = void Function(Map<dynamic, dynamic> errorEvent);
 typedef LogCallback = void Function(Map<dynamic, dynamic> logEvent);
 typedef EventsCallback = void Function(Map<dynamic, dynamic> eventsEvent);
 typedef TokenCallback = void Function(Map<dynamic, dynamic> tokenEvent);
+typedef InAppMessageCallback = void Function(Map<dynamic, dynamic> inAppMessageEvent);
+typedef InAppMessageDismissedCallback = void Function(Map<dynamic, dynamic> inAppMessageEvent);
+typedef InAppMessageButtonClickedCallback = void Function(Map<dynamic, dynamic> inAppMessageEvent);
 
 class Radar {
   static const MethodChannel _channel = const MethodChannel('flutter_radar');
@@ -38,6 +42,9 @@ class Radar {
   static LogCallback? foregroundLogCallback;
   static EventsCallback? foregroundEventsCallback;
   static TokenCallback? foregroundTokenCallback;
+  static InAppMessageCallback? foregroundInAppMessageCallback;
+  static InAppMessageDismissedCallback? foregroundInAppMessageDismissedCallback;
+  static InAppMessageButtonClickedCallback? foregroundInAppMessageButtonClickedCallback;
 
   static Future initialize(String publishableKey) async {
     try {
@@ -72,6 +79,15 @@ class Radar {
         break;
       case 'token':
         foregroundTokenCallback?.call(args[1] as Map<dynamic, dynamic>);
+        break;
+      case 'inAppMessage':
+        foregroundInAppMessageCallback?.call(args[1] as Map<dynamic, dynamic>);
+        break;
+      case 'inAppMessageDismissed':
+        foregroundInAppMessageDismissedCallback?.call(args[1] as Map<dynamic, dynamic>);
+        break;
+      case 'inAppMessageButtonClicked':
+        foregroundInAppMessageButtonClickedCallback?.call(args[1] as Map<dynamic, dynamic>);
         break;
     }
   }
@@ -327,7 +343,8 @@ class Radar {
       List? chains,
       Map<String, String>? chainMetadata,
       List? categories,
-      List? groups}) async {
+      List? groups,
+      List<String>? countryCodes}) async {
     try {
       return await _channel.invokeMethod('searchPlaces', {
         'near': near,
@@ -336,7 +353,8 @@ class Radar {
         'chains': chains,
         'chainMetadata': chainMetadata,
         'categories': categories,
-        'groups': groups
+        'groups': groups,
+        'countryCodes': countryCodes
       });
     } on PlatformException catch (e) {
       print(e);
@@ -495,10 +513,14 @@ class Radar {
     }
   }
 
-  static Future<Map?> trackVerified({bool? beacons}) async {
+  static Future<Map?> trackVerified({bool? beacons, String? desiredAccuracy, String? reason, String? transactionId}) async {
     try {
-      return await _channel.invokeMethod(
-          'trackVerified', {'beacons': beacons != null ? beacons : false});
+      return await _channel.invokeMethod('trackVerified', {
+        'beacons': beacons != null ? beacons : false,
+        'desiredAccuracy': desiredAccuracy,
+        'reason': reason,
+        'transactionId': transactionId
+      });
     } on PlatformException catch (e) {
       print(e);
       return {'error': e.code};
@@ -525,6 +547,58 @@ class Radar {
     } on PlatformException catch (e) {
       print(e);
       return {'error': e.code};
+    }
+  }
+
+  static Future setProduct(String? product) async {
+    try {
+      await _channel.invokeMethod('setProduct', {'product': product});
+    } on PlatformException catch (e) {
+      print(e);
+    }
+  }
+
+  static Future<String?> getProduct() async {
+    return await _channel.invokeMethod('getProduct');
+  }
+
+  static Future<List<String>?> getTags() async {
+    return await _channel.invokeMethod('getTags');
+  }
+
+  static Future addTags(List<String> tags) async {
+    try {
+      await _channel.invokeMethod('addTags', {'tags': tags});
+    } on PlatformException catch (e) {
+      print(e);
+    }
+  }
+
+  static Future removeTags(List<String> tags) async {
+    try {
+      await _channel.invokeMethod('removeTags', {'tags': tags});
+    } on PlatformException catch (e) {
+      print(e);
+    }
+  }
+
+  static Future<bool?> isTrackingVerified() async {
+    return await _channel.invokeMethod('isTrackingVerified');
+  }
+
+  static Future clearVerifiedLocationToken() async {
+    try {
+      await _channel.invokeMethod('clearVerifiedLocationToken');
+    } on PlatformException catch (e) {
+      print(e);
+    }
+  }
+
+  static Future showInAppMessage(Map<String, dynamic> inAppMessage) async {
+    try {
+      await _channel.invokeMethod('showInAppMessage', {'inAppMessage': jsonEncode(inAppMessage)});
+    } on PlatformException catch (e) {
+      print(e);
     }
   }
 
@@ -594,6 +668,39 @@ class Radar {
     foregroundTokenCallback = null;
   }
 
+  static onInAppMessage(InAppMessageCallback callback) {
+    if (foregroundInAppMessageCallback != null) {
+      throw RadarExistingCallbackException();
+    }
+    foregroundInAppMessageCallback = callback;
+  }
+
+  static offInAppMessage() {
+    foregroundInAppMessageCallback = null;
+  }
+
+  static onInAppMessageDismissed(InAppMessageDismissedCallback callback) {
+    if (foregroundInAppMessageDismissedCallback != null) {
+      throw RadarExistingCallbackException();
+    }
+    foregroundInAppMessageDismissedCallback = callback;
+  }
+
+  static offInAppMessageDismissed() {
+    foregroundInAppMessageDismissedCallback = null;
+  }
+
+  static onInAppMessageButtonClicked(InAppMessageButtonClickedCallback callback) {
+    if (foregroundInAppMessageButtonClickedCallback != null) {
+      throw RadarExistingCallbackException();
+    }
+    foregroundInAppMessageButtonClickedCallback = callback;
+  }
+
+  static offInAppMessageButtonClicked() {
+    foregroundInAppMessageButtonClickedCallback = null;
+  }
+
   static Map<String, dynamic> presetContinuousIOS = {
     "desiredStoppedUpdateInterval": 30,
     "desiredMovingUpdateInterval": 30,
@@ -635,6 +742,8 @@ class Radar {
     "syncGeofencesLimit": 0,
     "foregroundServiceEnabled": true,
     "beacons": false,
+    "useMotion": false,
+    "usePressure": false,
     "startTrackingAfter": null,
     "stopTrackingAfter": null,
   };
@@ -680,6 +789,8 @@ class Radar {
     "syncGeofencesLimit": 10,
     "foregroundServiceEnabled": false,
     "beacons": false,
+    "useMotion": false,
+    "usePressure": false,
     "startTrackingAfter": null,
     "stopTrackingAfter": null,
   };
@@ -725,6 +836,8 @@ class Radar {
     "syncGeofencesLimit": 10,
     "foregroundServiceEnabled": false,
     "beacons": false,
+    "useMotion": false,
+    "usePressure": false,
     "startTrackingAfter": null,
     "stopTrackingAfter": null,
   };
