@@ -581,7 +581,7 @@ class Radar {
 
   static Future showInAppMessage(Map<String, dynamic> inAppMessage) async {
     try {
-      await _channel.invokeMethod('showInAppMessage', {'inAppMessage': jsonEncode(inAppMessage)});
+      await _channel.invokeMethod('showInAppMessage', {'inAppMessage': inAppMessage});
     } on PlatformException catch (e) {
       print(e);
     }

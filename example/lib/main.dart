@@ -141,6 +141,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             ElevatedButton(
               style: raisedButtonStyle,
               onPressed: () async {
+                var resp = await Radar.showInAppMessage({
+                    "type": "banner",
+                    "title": {
+                        "text": "This is the title",
+                        "color": "#000000"
+                    },
+                    "body": {
+                        "text": "This is a demo message",
+                        "color": "#666666"
+                    },
+                    "button": {
+                        "text": "Send it",
+                        "color": "#FFFFFF",
+                        "backgroundColor": "#EB0083"
+                    }
+                });
+                print("showInAppMessage: $resp");
+              },
+              child: Text('showInAppMessage'),
+            ),
+            ElevatedButton(
+              style: raisedButtonStyle,
+              onPressed: () async {
                 Radar.setForegroundServiceOptions({
                   'title': 'Tracking',
                   'text': 'Trip tracking started',
@@ -465,29 +488,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
                 print("validateAddress: $resp");
               },
               child: Text('validateAddress'),
-            ),
-            ElevatedButton(
-              style: raisedButtonStyle,
-              onPressed: () async {
-                var resp = await Radar.showInAppMessage({
-                    "type": "banner",
-                    "title": {
-                        "text": "This is the title",
-                        "color": "#000000"
-                    },
-                    "body": {
-                        "text": "This is a demo message",
-                        "color": "#666666"
-                    },
-                    "button": {
-                        "text": "Send it",
-                        "color": "#FFFFFF",
-                        "backgroundColor": "#EB0083"
-                    }
-                });
-                print("showInAppMessage: $resp");
-              },
-              child: Text('showInAppMessage'),
             ),
           ]),
         )

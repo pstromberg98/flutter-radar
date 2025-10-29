@@ -2,6 +2,8 @@
 
 #import <RadarSDK/RadarSDK.h>
 
+@import RadarSDK;
+
 @interface RadarFlutterPlugin() <RadarDelegate, RadarVerifiedDelegate>
 
 @property (strong, nonatomic) FlutterMethodChannel *channel;
@@ -132,6 +134,22 @@
         [self isUsingRemoteTrackingOptions:call withResult:result];    
     } else if ([@"validateAddress" isEqualToString:call.method]) {
         [self validateAddress:call withResult:result];    
+    } else if ([@"setProduct" isEqualToString:call.method]) {
+        [self setProduct:call withResult:result];
+    } else if ([@"getProduct" isEqualToString:call.method]) {
+        [self getProduct:call withResult:result];
+    } else if ([@"getTags" isEqualToString:call.method]) {
+        [self getTags:call withResult:result];
+    } else if ([@"addTags" isEqualToString:call.method]) {
+        [self addTags:call withResult:result];
+    } else if ([@"removeTags" isEqualToString:call.method]) {
+        [self removeTags:call withResult:result];
+    } else if ([@"isTrackingVerified" isEqualToString:call.method]) {
+        [self isTrackingVerified:call withResult:result];
+    } else if ([@"clearVerifiedLocationToken" isEqualToString:call.method]) {
+        [self clearVerifiedLocationToken:call withResult:result];
+    } else if ([@"showInAppMessage" isEqualToString:call.method]) {
+        [self showInAppMessage:call withResult:result];
     } else {
         result(FlutterMethodNotImplemented);
     }
@@ -684,6 +702,7 @@
     NSDictionary *chainMetadata = [argsDict[@"chainMetadata"] isKindOfClass:[NSNull class]] ? nil : argsDict[@"chainMetadata"];
     NSArray *categories = [argsDict[@"categories"] isKindOfClass:[NSNull class]] ? nil : argsDict[@"categories"];
     NSArray *groups = [argsDict[@"groups"] isKindOfClass:[NSNull class]] ? nil : argsDict[@"groups"];
+    NSArray *countryCodes = [argsDict[@"countryCodes"] isKindOfClass:[NSNull class]] ? nil : argsDict[@"countryCodes"];
     NSNumber *limitNumber = argsDict[@"limit"];
     int limit;
     if (limitNumber != nil && [limitNumber isKindOfClass:[NSNumber class]]) {
@@ -693,9 +712,9 @@
     }
 
     if (near != nil) {
-        [Radar searchPlacesNear:near radius:radius chains:chains chainMetadata:chainMetadata categories:categories groups:groups limit:limit completionHandler:completionHandler];
+        [Radar searchPlacesNear:near radius:radius chains:chains chainMetadata:chainMetadata categories:categories groups:groups countryCodes:countryCodes limit:limit completionHandler:completionHandler];
     } else {
-        [Radar searchPlacesWithRadius:radius chains:chains chainMetadata:chainMetadata categories:categories groups:groups limit:limit completionHandler:completionHandler];
+        [Radar searchPlacesWithRadius:radius chains:chains chainMetadata:chainMetadata categories:categories groups:groups countryCodes:countryCodes limit:limit completionHandler:completionHandler];
     }
 }
 
@@ -977,6 +996,22 @@
         beacons = [beaconsNumber boolValue];
     }
 
+    RadarTrackingOptionsDesiredAccuracy desiredAccuracy = RadarTrackingOptionsDesiredAccuracyMedium;
+    NSString *desiredAccuracyStr = argsDict[@"desiredAccuracy"];
+    if (desiredAccuracyStr != nil && [desiredAccuracyStr isKindOfClass:[NSString class]]) {
+        NSString *lowerAccuracyStr = [desiredAccuracyStr lowercaseString];
+        if ([lowerAccuracyStr isEqualToString:@"high"]) {
+            desiredAccuracy = RadarTrackingOptionsDesiredAccuracyHigh;
+        } else if ([lowerAccuracyStr isEqualToString:@"medium"]) {
+            desiredAccuracy = RadarTrackingOptionsDesiredAccuracyMedium;
+        } else if ([lowerAccuracyStr isEqualToString:@"low"]) {
+            desiredAccuracy = RadarTrackingOptionsDesiredAccuracyLow;
+        }
+    }
+
+    NSString *reason = argsDict[@"reason"];
+    NSString *transactionId = argsDict[@"transactionId"];
+
     RadarTrackVerifiedCompletionHandler completionHandler = ^(RadarStatus status, RadarVerifiedLocationToken* token) {
         if (status == RadarStatusSuccess) {
             NSMutableDictionary *dict = [NSMutableDictionary new];
@@ -986,7 +1021,7 @@
         }
     };
 
-    [Radar trackVerifiedWithBeacons:beacons completionHandler:completionHandler];
+    [Radar trackVerifiedWithBeacons:beacons desiredAccuracy:desiredAccuracy reason:reason transactionId:transactionId completionHandler:completionHandler];
 }
 
 - (void)getVerifiedLocationToken:(FlutterResult)result {
@@ -1067,6 +1102,55 @@
         [self.channel invokeMethod:@"token" arguments:args];
     }
 }
+
+- (void)setProduct:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    NSDictionary *argsDict = call.arguments;
+    NSString *product = argsDict[@"product"];
+    [Radar setProduct:product];
+    result(nil);
+}
+
+- (void)getProduct:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    NSString *product = [Radar getProduct];
+    result(product);
+}
+
+- (void)getTags:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    NSArray *tags = [Radar getTags];
+    result(tags);
+}
+
+- (void)addTags:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    NSDictionary *argsDict = call.arguments;
+    NSArray *tags = argsDict[@"tags"];
+    [Radar addTags:tags];
+    result(nil);
+}
+
+- (void)removeTags:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    NSDictionary *argsDict = call.arguments;
+    NSArray *tags = argsDict[@"tags"];
+    [Radar removeTags:tags];
+    result(nil);
+}
+
+- (void)isTrackingVerified:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    BOOL isTrackingVerified = [Radar isTrackingVerified];
+    result(@(isTrackingVerified));
+}
+
+- (void)clearVerifiedLocationToken:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    [Radar clearVerifiedLocationToken];
+    result(nil);
+}
+
+- (void)showInAppMessage:(FlutterMethodCall *)call withResult:(FlutterResult)result {
+    NSDictionary *argsDict = call.arguments;
+    NSDictionary *inAppMessageDict = argsDict[@"inAppMessage"];
+    [Radar showInAppMessage:[RadarInAppMessage fromDictionary:inAppMessageDict]];
+    result(nil);
+}
+
 
 @end
 

@@ -1324,13 +1324,22 @@ public class RadarFlutterPlugin implements FlutterPlugin, ActivityAware, Request
 
     private static void showInAppMessage(MethodCall call, Result result) {
         try {
-            String inAppMessageJson = call.argument("inAppMessage");
-            RadarInAppMessage inAppMessage = RadarInAppMessage.fromJson(inAppMessageJson);
-            if (inAppMessage != null) {
-                Radar.showInAppMessage(inAppMessage);
-                result.success(true);
-            } else {
-                result.error("INVALID_INAPP_MESSAGE", "Invalid in-app message data", null);
+            HashMap inAppMessageMap = call.argument("inAppMessage");
+            String inAppMessageJson = null;
+            try {
+                if (inAppMessageMap != null) {
+                    JSONObject jsonObj = new JSONObject(new Gson().toJsonTree(inAppMessageMap).getAsJsonObject().toString());
+                    inAppMessageJson = jsonObj.toString();
+                }
+                RadarInAppMessage inAppMessage = RadarInAppMessage.fromJson(inAppMessageJson);
+                if (inAppMessage != null) {
+                    Radar.showInAppMessage(inAppMessage);
+                    result.success(true);
+                } else {
+                    result.error("INVALID_INAPP_MESSAGE", "Invalid in-app message data", inAppMessageJson);
+                }
+            } catch (Exception e) {
+                result.error("INVALID_INAPP_MESSAGE", "Failed to convert inAppMessage to JSON", e.getMessage());
             }
         } catch (Exception e) {
             result.error(e.toString(), e.getMessage(), e.getMessage());
