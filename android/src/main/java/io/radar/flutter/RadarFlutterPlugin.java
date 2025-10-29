@@ -58,9 +58,6 @@ import io.radar.sdk.model.RadarRouteMatrix;
 import io.radar.sdk.RadarTrackingOptions.RadarTrackingOptionsForegroundService;
 import io.radar.sdk.model.RadarVerifiedLocationToken;
 import io.radar.sdk.model.RadarInAppMessage;
-import io.radar.sdk.RadarInAppMessageReceiver;
-import io.radar.sdk.RadarInAppMessageView;
-import io.radar.flutter.RadarFlutterInAppMessageReceiver;
 
 import io.flutter.embedding.engine.dart.DartExecutor;
 import io.flutter.embedding.engine.dart.DartExecutor.DartCallback;
@@ -315,7 +312,6 @@ public class RadarFlutterPlugin implements FlutterPlugin, ActivityAware, Request
         Radar.initialize(mContext, publishableKey, null, Radar.RadarLocationServicesProvider.GOOGLE, false, null, null, mActivity);
         Radar.setReceiver(new RadarFlutterReceiver(channel));
         Radar.setVerifiedReceiver(new RadarFlutterVerifiedReceiver(channel));
-        Radar.setInAppMessageReceiver(new RadarFlutterInAppMessageReceiver(channel));
         result.success(true);
     }
 

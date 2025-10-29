@@ -29,9 +29,6 @@ typedef ErrorCallback = void Function(Map<dynamic, dynamic> errorEvent);
 typedef LogCallback = void Function(Map<dynamic, dynamic> logEvent);
 typedef EventsCallback = void Function(Map<dynamic, dynamic> eventsEvent);
 typedef TokenCallback = void Function(Map<dynamic, dynamic> tokenEvent);
-typedef InAppMessageCallback = void Function(Map<dynamic, dynamic> inAppMessageEvent);
-typedef InAppMessageDismissedCallback = void Function(Map<dynamic, dynamic> inAppMessageEvent);
-typedef InAppMessageButtonClickedCallback = void Function(Map<dynamic, dynamic> inAppMessageEvent);
 
 class Radar {
   static const MethodChannel _channel = const MethodChannel('flutter_radar');
@@ -42,9 +39,6 @@ class Radar {
   static LogCallback? foregroundLogCallback;
   static EventsCallback? foregroundEventsCallback;
   static TokenCallback? foregroundTokenCallback;
-  static InAppMessageCallback? foregroundInAppMessageCallback;
-  static InAppMessageDismissedCallback? foregroundInAppMessageDismissedCallback;
-  static InAppMessageButtonClickedCallback? foregroundInAppMessageButtonClickedCallback;
 
   static Future initialize(String publishableKey) async {
     try {
@@ -79,15 +73,6 @@ class Radar {
         break;
       case 'token':
         foregroundTokenCallback?.call(args[1] as Map<dynamic, dynamic>);
-        break;
-      case 'inAppMessage':
-        foregroundInAppMessageCallback?.call(args[1] as Map<dynamic, dynamic>);
-        break;
-      case 'inAppMessageDismissed':
-        foregroundInAppMessageDismissedCallback?.call(args[1] as Map<dynamic, dynamic>);
-        break;
-      case 'inAppMessageButtonClicked':
-        foregroundInAppMessageButtonClickedCallback?.call(args[1] as Map<dynamic, dynamic>);
         break;
     }
   }
@@ -668,39 +653,6 @@ class Radar {
     foregroundTokenCallback = null;
   }
 
-  static onInAppMessage(InAppMessageCallback callback) {
-    if (foregroundInAppMessageCallback != null) {
-      throw RadarExistingCallbackException();
-    }
-    foregroundInAppMessageCallback = callback;
-  }
-
-  static offInAppMessage() {
-    foregroundInAppMessageCallback = null;
-  }
-
-  static onInAppMessageDismissed(InAppMessageDismissedCallback callback) {
-    if (foregroundInAppMessageDismissedCallback != null) {
-      throw RadarExistingCallbackException();
-    }
-    foregroundInAppMessageDismissedCallback = callback;
-  }
-
-  static offInAppMessageDismissed() {
-    foregroundInAppMessageDismissedCallback = null;
-  }
-
-  static onInAppMessageButtonClicked(InAppMessageButtonClickedCallback callback) {
-    if (foregroundInAppMessageButtonClickedCallback != null) {
-      throw RadarExistingCallbackException();
-    }
-    foregroundInAppMessageButtonClickedCallback = callback;
-  }
-
-  static offInAppMessageButtonClicked() {
-    foregroundInAppMessageButtonClickedCallback = null;
-  }
-
   static Map<String, dynamic> presetContinuousIOS = {
     "desiredStoppedUpdateInterval": 30,
     "desiredMovingUpdateInterval": 30,
@@ -720,6 +672,8 @@ class Radar {
     "useVisits": false,
     "useSignificantLocationChanges": false,
     "beacons": false,
+    "useMotion": false,
+    "usePressure": false,
     "sync": 'all',
   };
 
@@ -767,6 +721,8 @@ class Radar {
     "useVisits": true,
     "useSignificantLocationChanges": true,
     "beacons": false,
+    "useMotion": false,
+    "usePressure": false,
     "sync": 'all',
   };
 
@@ -814,6 +770,8 @@ class Radar {
     "useVisits": true,
     "useSignificantLocationChanges": false,
     "beacons": false,
+    "useMotion": false,
+    "usePressure": false,
     "sync": 'all',
   };
 
