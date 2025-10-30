@@ -1300,14 +1300,14 @@ public class RadarFlutterPlugin implements FlutterPlugin, ActivityAware, Request
 
     private static void addTags(MethodCall call, Result result) {
         ArrayList<String> tagsList = (ArrayList<String>)call.argument("tags");
-        String[] tags = tagsList.toArray(new String[0]);
+        String[] tags = (tagsList != null) ? tagsList.toArray(new String[0]) : new String[0];
         Radar.addTags(tags);
         result.success(true);
     }
 
     private static void removeTags(MethodCall call, Result result) {
         ArrayList<String> tagsList = (ArrayList<String>)call.argument("tags");
-        String[] tags = tagsList.toArray(new String[0]);
+        String[] tags = (tagsList != null) ? tagsList.toArray(new String[0]) : new String[0];
         Radar.removeTags(tags);
         result.success(true);
     }
