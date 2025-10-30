@@ -1145,7 +1145,9 @@
 - (void)showInAppMessage:(FlutterMethodCall *)call withResult:(FlutterResult)result {
     NSDictionary *argsDict = call.arguments;
     NSDictionary *inAppMessageDict = argsDict[@"inAppMessage"];
-    [Radar showInAppMessage:[RadarInAppMessage fromDictionary:inAppMessageDict]];
+    if (inAppMessageDict && ![inAppMessageDict isKindOfClass:[NSNull class]]) {
+        [Radar showInAppMessage:[RadarInAppMessage fromDictionary:inAppMessageDict]];
+    }
     result(nil);
 }
 
