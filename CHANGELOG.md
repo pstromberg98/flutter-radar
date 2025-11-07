@@ -1,3 +1,8 @@
+# 3.23.4-beta.2
+- Changed iOS platform target to 12.0
+
+# 3.23.4-beta.1
+- Updates iOS and Android sdk to 3.23.4 and 3.23.5, respectively
 
 # 3.23.4
 - Updates iOS and Android sdk to 3.23.4 and 3.23.5, respectively
