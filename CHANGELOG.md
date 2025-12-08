@@ -1,3 +1,10 @@
+# 3.24.0-beta.2
+- Updates iOS sdk to 3.24.1
+
+# 3.24.0-beta.1
+- Updates iOS sdk to 3.24.0
+- Adds `silentPush` initialization option to iOS
+
 # 3.23.4-beta.2
 - Changed iOS platform target to 12.0
 
