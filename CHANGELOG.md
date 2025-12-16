@@ -1,3 +1,6 @@
+# 3.24.0-beta.3
+- Updates Android SDK to 3.24.1
+
 # 3.24.0-beta.2
 - Updates iOS sdk to 3.24.1
 
