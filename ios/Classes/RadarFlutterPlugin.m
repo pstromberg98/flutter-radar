@@ -310,9 +310,9 @@
 
 - (void)trackOnce:(FlutterMethodCall *)call withResult:(FlutterResult)result {
     RadarTrackCompletionHandler completionHandler = ^(RadarStatus status, CLLocation *location, NSArray<RadarEvent *> *events, RadarUser *user) {
+        NSMutableDictionary *dict = [NSMutableDictionary new];
+        [dict setObject:[Radar stringForStatus:status] forKey:@"status"];
         if (status == RadarStatusSuccess) {
-            NSMutableDictionary *dict = [NSMutableDictionary new];
-            [dict setObject:[Radar stringForStatus:status] forKey:@"status"];
             if (location) {
                 [dict setObject:[Radar dictionaryForLocation:location] forKey:@"location"];
             }
@@ -323,8 +323,8 @@
                 [dict setObject:[user dictionaryValue] forKey:@"user"];
             }
             [dict setObject: [RadarState lastMotionActivityData][@"type"] ?: @"unknown" forKey:@"motionActivity"];
-            result(dict);
         }
+        result(dict);
     };
 
     NSDictionary *argsDict = call.arguments;
