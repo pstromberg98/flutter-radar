@@ -309,7 +309,7 @@ public class RadarFlutterPlugin implements FlutterPlugin, ActivityAware, Request
         editor.putString("x_platform_sdk_type", "Flutter");
         editor.putString("x_platform_sdk_version", "3.24.0-beta.3");
         editor.apply();
-        Radar.initialize(mContext, publishableKey, null, Radar.RadarLocationServicesProvider.GOOGLE, false, null, null, mActivity);
+        Radar.initialize(mContext, publishableKey, null, Radar.RadarLocationServicesProvider.GOOGLE, false, null, null, mActivity, null);
         Radar.setReceiver(new RadarFlutterReceiver(channel));
         Radar.setVerifiedReceiver(new RadarFlutterVerifiedReceiver(channel));
         result.success(true);
